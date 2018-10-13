@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="edu.eci.pdsw.persistence.mybatisimpl.mappers.CommentMapper">
+
+    <resultMap type='User' id='UserResult'>
+        <id property='login' column='login'/>        
+        <result property='name' column='name'/>
+        <result property='lastName' column='lastName'/>
+    </resultMap>
+    
+    <select id="commentByBlogTitle" resultMap="CommentResult" parameterType="map">
+	   SELECT
+	    	bu.login as login,
+	    	bu.name as name,
+	    	bu.lastName as lastName,
+	    	bc.id as id,
+	    	bc.creation_date as creation_date,
+	    	bc.content as content,
+	    	bc.author as author
+	    FROM BLOG_USUARIO as bu, BLOG_COMMENT AS bc, BLOG as b
+	    WHERE bc.blog_id=b.id and bc.author=login and b.title = #{title}
+	    ORDER BY bc.creation_date DESC;  
+	</select>
+	   
+
+    <select id="searchOffensiveLanguageComments" resultMap="ComentsResult0001" parameterType="map">
+		    SELECT 
+		    	c.id as id_comment	, c.content		, c.author	,
+		    	b.id				, b.title		, b.author as author_blog,
+		    	bu.name				, bu.lastName	, bu.login  
+		    FROM 	    BLOG_COMMENT as c 			
+		    LEFT JOIN	BLOG as b 	ON  c.blog_id	=	b.id 
+		    LEFT JOIN   BLOG_USUARIO as bu 	ON 	bu.login	=	c.author 
+		    WHERE ( c.content LIKE '%tonto%' OR c.content LIKE '%burro%')
+		    ORDER BY bu.login
+	</select>
+	  
+    <resultMap type='Comment' id='ComentsResult0001'>
+        <id property='id' 	column='id_comment'/>        
+        <result property='content' 	column='content'/>
+        <association property='author' javaType='User' resultMap="edu.eci.pdsw.persistence.mybatisimpl.mappers.UserMapper.UserResult"/> 
+        <association property='blog'   javaType='Blog' resultMap="edu.eci.pdsw.persistence.mybatisimpl.mappers.BlogMapper.BlogResult">
+        </association> 
+    </resultMap>
+
+	<resultMap type='Comment' id='CommentResult2'>
+        <result property='creationDate' column='creation_date'/>
+        <result property='content' column='content'/>
+    </resultMap>
+
+	<resultMap type='Comment' id='BlogResult1'>
+        <result property='creationDate' column='creation_date'/>
+        <result property='content' column='content'/>
+        <association property='author' javaType='User' resultMap="UserResult"/> 
+    </resultMap>
+    
+    <resultMap type='Comment' id='CommentResult'>
+        <id property='id' column='id'/>        
+        <result property='creationDate' column='creation_date'/>
+        <result property='content' column='content'/>
+        <association property='author' javaType='User' resultMap="edu.eci.pdsw.persistence.mybatisimpl.mappers.UserMapper.UserResult"/> 
+    </resultMap>
+    
+   
+    
+    
+</mapper>
